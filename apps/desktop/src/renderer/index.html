@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Block navigation to arbitrary URLs -->
+    <meta http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'" />
+    <title>My POS</title>
+    <!--
+      Prevent flash of unstyled content on startup.
+      This inline style is allowed by style-src 'unsafe-inline'.
+      The JS theme store will take over after React mounts.
+    -->
+    <style>
+      html { background-color: #0f1117; }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

@@ -1,0 +1,15 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "include": ["src/renderer/src/**/*"],
+  "compilerOptions": {
+    "composite": true,
+    "jsx": "react-jsx",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "paths": {
+      "@/*": ["./src/renderer/src/*"],
+      "@my-pos/shared": ["../../packages/shared/src/index.ts"],
+      "@my-pos/ipc": ["../../packages/ipc/src/index.ts"],
+      "@my-pos/ipc/channels": ["../../packages/ipc/src/channels.ts"]
+    }
+  }
+}

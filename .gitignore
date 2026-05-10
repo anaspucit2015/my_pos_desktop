@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.turbo/
+coverage/
+*.db
+*.db-journal
+.env
+.env.local
+out/
+release/

@@ -1,0 +1,37 @@
+{
+  "name": "@my-pos/desktop",
+  "version": "0.1.0",
+  "private": true,
+  "main": "out/main/index.js",
+  "scripts": {
+    "rebuild": "electron-rebuild -f -w better-sqlite3",
+    "dev": "electron-vite dev",
+    "build": "electron-vite build",
+    "typecheck": "tsc -p tsconfig.node.json --noEmit && tsc -p tsconfig.web.json --noEmit",
+    "lint": "eslint src --ext .ts,.tsx"
+  },
+  "dependencies": {
+    "@my-pos/core": "workspace:*",
+    "@my-pos/database": "workspace:*",
+    "@my-pos/ipc": "workspace:*",
+    "@my-pos/shared": "workspace:*",
+    "bcryptjs": "^2.4.3",
+    "better-sqlite3": "^9.6.0"
+  },
+  "devDependencies": {
+    "@electron/rebuild": "^3.6.0",
+    "@types/react": "^18.3.1",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.2.1",
+    "autoprefixer": "^10.4.19",
+    "electron": "^30.0.1",
+    "electron-vite": "^2.1.0",
+    "lucide-react": "^1.14.0",
+    "postcss": "^8.4.38",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.23.0",
+    "tailwindcss": "^3.4.3",
+    "zustand": "^4.5.2"
+  }
+}

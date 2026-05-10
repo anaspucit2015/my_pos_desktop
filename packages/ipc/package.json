@@ -1,0 +1,27 @@
+{
+  "name": "@my-pos/ipc",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./channels": "./src/channels.ts",
+    "./handlers": "./src/handlers.ts",
+    "./types": "./src/types.ts"
+  },
+  "scripts": {
+    "build": "tsc --project tsconfig.json",
+    "typecheck": "tsc --project tsconfig.json --noEmit",
+    "lint": "eslint src --ext .ts"
+  },
+  "dependencies": {
+    "@my-pos/shared": "workspace:*",
+    "@my-pos/database": "workspace:*",
+    "@my-pos/core": "workspace:*",
+    "electron": "^30.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.5"
+  }
+}

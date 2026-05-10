@@ -1,0 +1,21 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "include": [
+    "electron.vite.config.*",
+    "src/main/**/*",
+    "src/preload/**/*"
+  ],
+  "compilerOptions": {
+    "composite": true,
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "types": ["node", "electron-vite/node"],
+    "paths": {
+      "@my-pos/shared": ["../../packages/shared/src/index.ts"],
+      "@my-pos/database": ["../../packages/database/src/index.ts"],
+      "@my-pos/core": ["../../packages/core/src/index.ts"],
+      "@my-pos/ipc": ["../../packages/ipc/src/index.ts"],
+      "@my-pos/ipc/channels": ["../../packages/ipc/src/channels.ts"]
+    }
+  }
+}
