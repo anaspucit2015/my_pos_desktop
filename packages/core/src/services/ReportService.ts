@@ -76,6 +76,48 @@ export class ReportService {
   }
 
   /**
+   * Returns a summary of all activity across a date range.
+   * Use this instead of getDailySummary when the user selects a multi-day range.
+   *
+   * @param from - Start of the range (inclusive, time set to 00:00:00).
+   * @param to   - End of the range (inclusive, time set to 23:59:59).
+   */
+  async getRangeSummary(from: Date, to: Date): Promise<Result<DailySummary, Error>> {
+    try {
+      const start = new Date(from);
+      start.setHours(0, 0, 0, 0);
+      const end = new Date(to);
+      end.setHours(23, 59, 59, 999);
+
+      const result = await this.orderRepository.getByDateRange(start, end);
+      if (!result.success) return result;
+
+      const orders = result.data;
+      const completed = orders.filter((o) => o.status === OrderStatus.COMPLETED);
+      const voided = orders.filter((o) => o.status === OrderStatus.VOIDED);
+
+      const totalRevenueInCents = completed.reduce((s, o) => s + o.totalInCents, 0);
+      const totalTaxInCents = completed.reduce((s, o) => s + o.taxInCents, 0);
+      const totalDiscountInCents = completed.reduce((s, o) => s + o.discountInCents, 0);
+      const averageOrderInCents =
+        completed.length > 0 ? Math.round(totalRevenueInCents / completed.length) : 0;
+
+      return ok({
+        date: start.toISOString().slice(0, 10),
+        totalOrders: orders.length,
+        completedOrders: completed.length,
+        voidedOrders: voided.length,
+        totalRevenueInCents,
+        totalTaxInCents,
+        totalDiscountInCents,
+        averageOrderInCents,
+      });
+    } catch (e) {
+      return err(e instanceof Error ? e : new Error(String(e)));
+    }
+  }
+
+  /**
    * Returns the top-selling products within a date range, ranked by quantity sold.
    *
    * @param from - Start of the range (inclusive).

@@ -7,14 +7,22 @@ import CartItem from './CartItem';
 import CartSummary from './CartSummary';
 import PaymentModal from '../PaymentModal/PaymentModal';
 
+interface ICartProps {
+  /** Called whenever the PaymentModal opens or closes, so the parent can pause the scanner. */
+  onModalChange?: (open: boolean) => void;
+}
+
 /**
  * Right-hand cart panel: cashier header, item list, totals, and charge button.
  * Fixed width — the parent layout controls sizing.
  */
-export default function Cart(): React.JSX.Element {
+export default function Cart({ onModalChange }: ICartProps): React.JSX.Element {
   const { items, heldCarts, holdCart, resumeCart, clearCart, total } = useCartStore();
   const currentUser = useAuthStore((s) => s.currentUser);
   const [showPayment, setShowPayment] = useState(false);
+
+  function openPayment(): void { setShowPayment(true);  onModalChange?.(true);  }
+  function closePayment(): void { setShowPayment(false); onModalChange?.(false); }
 
   const isEmpty = items.length === 0;
   const initials =
@@ -91,7 +99,7 @@ export default function Cart(): React.JSX.Element {
         <CartSummary />
 
         <button
-          onClick={() => setShowPayment(true)}
+          onClick={openPayment}
           disabled={isEmpty}
           className="btn-primary mt-4 w-full py-3 text-sm"
         >
@@ -99,7 +107,7 @@ export default function Cart(): React.JSX.Element {
         </button>
       </div>
 
-      {showPayment && <PaymentModal onClose={() => setShowPayment(false)} />}
+      {showPayment && <PaymentModal onClose={closePayment} />}
     </div>
   );
 }

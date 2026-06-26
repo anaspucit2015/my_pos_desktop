@@ -48,6 +48,7 @@ export const IPC = {
 
   REPORTS: {
     GET_DAILY_SUMMARY: 'reports:getDailySummary',
+    GET_RANGE_SUMMARY: 'reports:getRangeSummary',
     GET_TOP_PRODUCTS: 'reports:getTopProducts',
     GET_REVENUE_BY_CATEGORY: 'reports:getRevenueByCategory',
   },
@@ -57,6 +58,11 @@ export const IPC = {
     CREATE: 'categories:create',
     UPDATE: 'categories:update',
     DELETE: 'categories:delete',
+  },
+
+  RETURNS: {
+    PROCESS: 'returns:process',
+    GET_BY_ORDER: 'returns:getByOrder',
   },
 } as const;
 

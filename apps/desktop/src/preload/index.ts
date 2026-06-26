@@ -87,6 +87,9 @@ contextBridge.exposeInMainWorld('api', {
     /** Get revenue and order count for a given date (ISO string). */
     getDailySummary: (date: string) =>
       ipcRenderer.invoke(IPC.REPORTS.GET_DAILY_SUMMARY, { date }),
+    /** Get aggregated summary across a date range (ISO strings). */
+    getRangeSummary: (from: string, to: string) =>
+      ipcRenderer.invoke(IPC.REPORTS.GET_RANGE_SUMMARY, { from, to }),
     /** Get top-selling products in a date range. */
     getTopProducts: (from: string, to: string, limit?: number) =>
       ipcRenderer.invoke(IPC.REPORTS.GET_TOP_PRODUCTS, { from, to, limit }),
@@ -104,5 +107,12 @@ contextBridge.exposeInMainWorld('api', {
     update: (id: number, dto: unknown) => ipcRenderer.invoke(IPC.CATEGORIES.UPDATE, { id, dto }),
     /** Delete a category (admin only). */
     delete: (id: number) => ipcRenderer.invoke(IPC.CATEGORIES.DELETE, { id }),
+  },
+
+  returns: {
+    /** Process a return for one or more items from a completed order. */
+    process: (dto: unknown) => ipcRenderer.invoke(IPC.RETURNS.PROCESS, { dto }),
+    /** Get all return transactions for a given order. */
+    getByOrder: (orderId: number) => ipcRenderer.invoke(IPC.RETURNS.GET_BY_ORDER, { orderId }),
   },
 });

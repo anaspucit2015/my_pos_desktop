@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Search } from 'lucide-react';
+import { Search, ScanLine } from 'lucide-react';
 import type { IProduct } from '@my-pos/shared';
 import { useProducts } from '../../hooks/useProducts';
 import ProductCard from './ProductCard';
@@ -53,8 +53,11 @@ export default function ProductGrid(): React.JSX.Element {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search products or scan barcode…"
-            className="input pl-9"
+            className="input pl-9 pr-10"
           />
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 text-t3 pointer-events-none">
+            <ScanLine size={14} strokeWidth={1.5} />
+          </div>
         </div>
 
         {/* Category pills */}

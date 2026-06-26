@@ -11,6 +11,7 @@ import CustomersPage from './pages/CustomersPage';
 import ReportsPage from './pages/ReportsPage';
 import SettingsPage from './pages/SettingsPage';
 import CategoriesPage from './pages/CategoriesPage';
+import SalesPage from './pages/SalesPage';
 import LoginPage from './pages/LoginPage';
 
 /** Wraps a route so it redirects to /login when unauthenticated. */
@@ -61,6 +62,7 @@ export default function App(): React.JSX.Element {
                   <Route index element={<Navigate to="/pos" replace />} />
                   <Route path="/pos"        element={<POSPage />} />
                   <Route path="/dashboard"  element={<DashboardPage />} />
+                  <Route path="/sales"      element={<SalesPage />} />
                   <Route path="/inventory"  element={<InventoryPage />} />
                   <Route path="/customers"  element={<CustomersPage />} />
                   <Route path="/categories" element={<AdminRoute><CategoriesPage /></AdminRoute>} />

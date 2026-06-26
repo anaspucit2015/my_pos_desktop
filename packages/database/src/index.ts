@@ -5,3 +5,4 @@ export { ProductRepository } from './repositories/ProductRepository.js';
 export { OrderRepository } from './repositories/OrderRepository.js';
 export { CustomerRepository } from './repositories/CustomerRepository.js';
 export { UserRepository } from './repositories/UserRepository.js';
+export { ReturnRepository } from './repositories/ReturnRepository.js';

@@ -45,6 +45,7 @@ import type {
   UpdateUserDTO,
   CreateCategoryDTO,
   UpdateCategoryDTO,
+  CreateReturnDTO,
 } from '@my-pos/shared';
 
 export interface ProductGetByIdArgs { id: number }
@@ -72,9 +73,13 @@ export interface InventoryAdjustArgs { productId: number; delta: number; userId:
 export interface InventoryStockHistoryArgs { productId: number }
 
 export interface ReportDailySummaryArgs { date: string }
+export interface ReportRangeSummaryArgs { from: string; to: string }
 export interface ReportTopProductsArgs { from: string; to: string; limit?: number }
 export interface ReportRevenueByCategoryArgs { from: string; to: string }
 
 export interface CategoryCreateArgs { dto: CreateCategoryDTO }
 export interface CategoryUpdateArgs { id: number; dto: UpdateCategoryDTO }
 export interface CategoryDeleteArgs { id: number }
+
+export interface ReturnProcessArgs { dto: CreateReturnDTO }
+export interface ReturnGetByOrderArgs { orderId: number }

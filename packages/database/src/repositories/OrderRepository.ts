@@ -1,7 +1,7 @@
 import { eq, gte, lte, and, desc } from 'drizzle-orm';
 import type { Db } from '../db.js';
-import { orders, orderItems, payments, products, customers, users } from '../schema.js';
-import type { IOrder, IOrderItem, IPayment, CreateOrderDTO, OrderStatus } from '@my-pos/shared';
+import { orders, orderItems, payments, products } from '../schema.js';
+import type { IOrder, IOrderItem, IPayment, IProduct, CreateOrderDTO, OrderStatus } from '@my-pos/shared';
 import { ok, err, type Result } from '@my-pos/shared';
 import { PaymentMethod } from '@my-pos/shared';
 
@@ -242,11 +242,37 @@ export class OrderRepository {
       this.db.select().from(payments).where(eq(payments.orderId, row.id)),
     ]);
 
-    return mapOrder(
-      row,
-      itemRows.map(mapOrderItem),
-      paymentRows.map(mapPayment),
+    // Hydrate each item with its product using individual lookups
+    const hydratedItems: IOrderItem[] = await Promise.all(
+      itemRows.map(async (itemRow) => {
+        const item = mapOrderItem(itemRow);
+        const productRow = await this.db.query.products.findFirst({
+          where: eq(products.id, itemRow.productId),
+        });
+        if (productRow) {
+          item.product = {
+            id: productRow.id,
+            sku: productRow.sku,
+            barcode: productRow.barcode ?? null,
+            name: productRow.name,
+            description: productRow.description ?? null,
+            categoryId: productRow.categoryId ?? null,
+            category: null,
+            priceInCents: productRow.priceInCents,
+            costInCents: productRow.costInCents,
+            stockQuantity: productRow.stockQuantity,
+            lowStockThreshold: productRow.lowStockThreshold,
+            isActive: productRow.isActive,
+            imageUrl: productRow.imageUrl ?? null,
+            createdAt: new Date(productRow.createdAt),
+            updatedAt: new Date(productRow.updatedAt),
+          } satisfies IProduct;
+        }
+        return item;
+      }),
     );
+
+    return mapOrder(row, hydratedItems, paymentRows.map(mapPayment));
   }
 
   private generateOrderNumber(): string {

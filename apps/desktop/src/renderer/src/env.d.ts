@@ -17,6 +17,8 @@ import type {
   UpdateUserDTO,
   CreateCategoryDTO,
   UpdateCategoryDTO,
+  IReturn,
+  CreateReturnDTO,
 } from '@my-pos/shared';
 
 declare global {
@@ -61,6 +63,7 @@ declare global {
       };
       reports: {
         getDailySummary(date: string): Promise<IpcResponse<DailySummary>>;
+        getRangeSummary(from: string, to: string): Promise<IpcResponse<DailySummary>>;
         getTopProducts(from: string, to: string, limit?: number): Promise<IpcResponse<TopProduct[]>>;
         getRevenueByCategory(from: string, to: string): Promise<IpcResponse<CategoryRevenue[]>>;
       };
@@ -69,6 +72,10 @@ declare global {
         create(dto: CreateCategoryDTO): Promise<IpcResponse<IProductCategory>>;
         update(id: number, dto: UpdateCategoryDTO): Promise<IpcResponse<IProductCategory>>;
         delete(id: number): Promise<IpcResponse<void>>;
+      };
+      returns: {
+        process(dto: CreateReturnDTO): Promise<IpcResponse<IReturn>>;
+        getByOrder(orderId: number): Promise<IpcResponse<IReturn[]>>;
       };
     };
   }

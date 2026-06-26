@@ -7,6 +7,8 @@ export type { IUser, CreateUserDTO, UpdateUserDTO } from './types/user.js';
 export { UserRole } from './types/user.js';
 export type { IPayment, CashPaymentDTO, CardPaymentDTO, PaymentDTO } from './types/payment.js';
 export { PaymentMethod } from './types/payment.js';
+export type { IReturn, IReturnItem, CreateReturnDTO, CreateReturnItemDTO } from './types/return.js';
+export { ReturnReason, RefundMethod } from './types/return.js';
 
 // Constants
 export {

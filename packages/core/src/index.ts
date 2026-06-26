@@ -16,3 +16,4 @@ export { OrderController } from './controllers/OrderController.js';
 export { CustomerController } from './controllers/CustomerController.js';
 export { AuthController } from './controllers/AuthController.js';
 export { InventoryController } from './controllers/InventoryController.js';
+export { ReturnController } from './controllers/ReturnController.js';

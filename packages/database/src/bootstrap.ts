@@ -1,6 +1,7 @@
 import bcrypt from 'bcryptjs';
 import Database from 'better-sqlite3';
 import { up as up001 } from './migrations/001_initial_schema.js';
+import { up as up002 } from './migrations/002_returns.js';
 
 const BCRYPT_ROUNDS = 10;
 
@@ -18,6 +19,7 @@ export function bootstrapDatabase(dbPath: string): void {
 
   // ── Migrations ─────────────────────────────────────────────────────────────
   up001(sqlite);
+  up002(sqlite);
 
   // ── Seed (only when users table is empty) ──────────────────────────────────
   const userCount = (sqlite.prepare('SELECT COUNT(*) as n FROM users').get() as { n: number }).n;

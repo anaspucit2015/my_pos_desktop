@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { formatCurrency } from '@my-pos/shared';
+import { Download } from 'lucide-react';
 
 const today = new Date().toISOString().split('T')[0] ?? '';
 
@@ -29,21 +30,103 @@ export default function ReportsPage(): React.JSX.Element {
     setLoading(true);
     setError(null);
 
-    const [summaryRes, topRes, catRes] = await Promise.all([
-      window.api.reports.getDailySummary(fromDate),
-      window.api.reports.getTopProducts(fromDate, toDate, 8),
-      window.api.reports.getRevenueByCategory(fromDate, toDate),
-    ]);
+    try {
+      const [summaryRes, topRes, catRes] = await Promise.all([
+        window.api.reports.getRangeSummary(fromDate, toDate),
+        window.api.reports.getTopProducts(fromDate, toDate, 8),
+        window.api.reports.getRevenueByCategory(fromDate, toDate),
+      ]);
 
-    setLoading(false);
+      if (!summaryRes.success) { setError(summaryRes.error); return; }
+      if (!topRes.success)     { setError(topRes.error);     return; }
+      if (!catRes.success)     { setError(catRes.error);     return; }
 
-    if (!summaryRes.success) { setError(summaryRes.error); return; }
-    if (!topRes.success)     { setError(topRes.error);     return; }
-    if (!catRes.success)     { setError(catRes.error);     return; }
+      setSummary(summaryRes.data);
+      setTopProducts(topRes.data);
+      setByCategory(catRes.data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load report');
+    } finally {
+      setLoading(false);
+    }
+  }
 
-    setSummary(summaryRes.data);
-    setTopProducts(topRes.data);
-    setByCategory(catRes.data);
+  /** Download a CSV string as a file in the browser. */
+  function downloadCsv(filename: string, csv: string): void {
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  /** Export orders in the selected date range as a Sales History CSV. */
+  async function exportSalesHistory(): Promise<void> {
+    const res = await window.api.orders.getAll();
+    if (!res.success) { setError(res.error); return; }
+
+    const fromMs = new Date(from + 'T00:00:00').getTime();
+    const toMs   = new Date(to   + 'T23:59:59').getTime();
+
+    const orders = res.data.filter((o) => {
+      const t = new Date(o.createdAt).getTime();
+      return t >= fromMs && t <= toMs;
+    });
+
+    const rows: string[] = [
+      ['Bill #', 'Date', 'Customer', 'Items', 'Subtotal', 'Tax', 'Discount', 'Total', 'Payment Method', 'Status'].join(','),
+    ];
+
+    for (const o of orders) {
+      const billNo   = `#${String(o.id).padStart(4, '0')}`;
+      const date     = new Date(o.createdAt).toLocaleString();
+      const customer = o.customer ? `"${o.customer.firstName} ${o.customer.lastName}"` : '';
+      const items    = `"${o.items.map((i) => `${i.quantity}× ${i.product?.name ?? `#${i.productId}`}`).join('; ')}"`;
+      const subtotal = (o.subtotalInCents / 100).toFixed(2);
+      const tax      = (o.taxInCents      / 100).toFixed(2);
+      const discount = (o.discountInCents / 100).toFixed(2);
+      const total    = (o.totalInCents    / 100).toFixed(2);
+      const method   = o.paymentMethod ?? '';
+      const status   = o.status;
+      rows.push([billNo, `"${date}"`, customer, items, subtotal, tax, discount, total, method, status].join(','));
+    }
+
+    downloadCsv(`sales-history-${from}-to-${to}.csv`, rows.join('\n'));
+  }
+
+  /** Export a full multi-section report as CSV. */
+  function exportFullReport(): void {
+    if (!summary) return;
+
+    const lines: string[] = [];
+
+    lines.push('SUMMARY');
+    lines.push(['Metric', 'Value'].join(','));
+    lines.push(['Period',           `"${fmtDate(from)} — ${fmtDate(to)}"`].join(','));
+    lines.push(['Total Revenue',    (summary.totalRevenueInCents   / 100).toFixed(2)].join(','));
+    lines.push(['Completed Orders', String(summary.completedOrders)].join(','));
+    lines.push(['Voided Orders',    String(summary.voidedOrders)].join(','));
+    lines.push(['Average Order',    (summary.averageOrderInCents   / 100).toFixed(2)].join(','));
+    lines.push(['Tax Collected',    (summary.totalTaxInCents       / 100).toFixed(2)].join(','));
+    lines.push(['Total Discounts',  (summary.totalDiscountInCents  / 100).toFixed(2)].join(','));
+    lines.push('');
+
+    lines.push('TOP PRODUCTS');
+    lines.push(['Rank', 'Product', 'SKU', 'Qty Sold', 'Revenue'].join(','));
+    topProducts.forEach((p, i) => {
+      lines.push([i + 1, `"${p.name}"`, p.sku, p.quantitySold, (p.revenueInCents / 100).toFixed(2)].join(','));
+    });
+    lines.push('');
+
+    lines.push('REVENUE BY CATEGORY');
+    lines.push(['Category', 'Orders', 'Revenue'].join(','));
+    byCategory.forEach((c) => {
+      lines.push([`"${c.categoryName}"`, c.orderCount, (c.revenueInCents / 100).toFixed(2)].join(','));
+    });
+
+    downloadCsv(`full-report-${from}-to-${to}.csv`, lines.join('\n'));
   }
 
   // Auto-load today on mount
@@ -97,6 +180,27 @@ export default function ReportsPage(): React.JSX.Element {
             >
               {loading ? 'Loading…' : 'Load report'}
             </button>
+
+            {summary && (
+              <>
+                <button
+                  onClick={() => void exportSalesHistory()}
+                  className="flex items-center gap-1.5 rounded-lg border border-line px-3 py-1.5 text-xs text-t2 hover:bg-surface-hover hover:text-t1 transition-colors"
+                  title="Export sales history as CSV"
+                >
+                  <Download size={12} strokeWidth={1.75} />
+                  Sales CSV
+                </button>
+                <button
+                  onClick={exportFullReport}
+                  className="flex items-center gap-1.5 rounded-lg border border-line px-3 py-1.5 text-xs text-t2 hover:bg-surface-hover hover:text-t1 transition-colors"
+                  title="Export full report as CSV"
+                >
+                  <Download size={12} strokeWidth={1.75} />
+                  Full CSV
+                </button>
+              </>
+            )}
           </div>
         </div>
       </div>

@@ -8,6 +8,7 @@ import {
   BarChart3,
   Settings,
   Tag,
+  ClipboardList,
 } from 'lucide-react';
 import { UserRole } from '@my-pos/shared';
 import { useAuthStore } from '../../store/authStore';
@@ -20,10 +21,11 @@ interface INavItem {
 }
 
 const NAV_ITEMS: INavItem[] = [
-  { to: '/pos',       icon: Receipt,    label: 'Point of Sale' },
-  { to: '/dashboard', icon: LayoutGrid, label: 'Dashboard'     },
-  { to: '/inventory', icon: Package,    label: 'Inventory'     },
-  { to: '/customers', icon: Users,      label: 'Customers'     },
+  { to: '/pos',       icon: Receipt,       label: 'Point of Sale'  },
+  { to: '/dashboard', icon: LayoutGrid,    label: 'Dashboard'      },
+  { to: '/sales',     icon: ClipboardList, label: 'Sales History'  },
+  { to: '/inventory', icon: Package,       label: 'Inventory'      },
+  { to: '/customers', icon: Users,         label: 'Customers'      },
 ];
 
 const ADMIN_NAV_ITEMS: INavItem[] = [

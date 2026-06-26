@@ -11,7 +11,7 @@
   --surface-hover: rgba(0, 0, 0, 0.06);
 
   --accent:    #5dcaa5;
-  --accent-fg: #0f1117;
+  --accent-fg: #ffffff;
 
   --t1: #111827;
   --t2: #6b7280;
@@ -29,7 +29,7 @@
   --surface-hover: rgba(255, 255, 255, 0.07);
 
   --accent:    #5dcaa5;
-  --accent-fg: #0f1117;
+  --accent-fg: #ffffff;
 
   --t1: #f9fafb;
   --t2: rgba(255, 255, 255, 0.50);

@@ -156,6 +156,44 @@ export const stockAdjustments = sqliteTable('stock_adjustments', {
     .default(sql`(datetime('now'))`),
 });
 
+// ─── Returns ─────────────────────────────────────────────────────────────────
+
+export const returns = sqliteTable('returns', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  returnNumber: text('return_number').notNull().unique(),
+  originalOrderId: integer('original_order_id')
+    .notNull()
+    .references(() => orders.id),
+  cashierId: integer('cashier_id')
+    .notNull()
+    .references(() => users.id),
+  /** 'DEFECTIVE' | 'WRONG_ITEM' | 'CUSTOMER_REQUEST' | 'OTHER' */
+  reason: text('reason').notNull(),
+  /** 'CASH' | 'CARD_CREDIT' | 'STORE_CREDIT' */
+  refundMethod: text('refund_method').notNull(),
+  refundAmountInCents: integer('refund_amount_in_cents').notNull(),
+  notes: text('notes'),
+  createdAt: text('created_at')
+    .notNull()
+    .default(sql`(datetime('now'))`),
+});
+
+export const returnItems = sqliteTable('return_items', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  returnId: integer('return_id')
+    .notNull()
+    .references(() => returns.id, { onDelete: 'cascade' }),
+  orderItemId: integer('order_item_id')
+    .notNull()
+    .references(() => orderItems.id),
+  productId: integer('product_id')
+    .notNull()
+    .references(() => products.id),
+  quantityReturned: integer('quantity_returned').notNull(),
+  unitPriceInCents: integer('unit_price_in_cents').notNull(),
+  subtotalInCents: integer('subtotal_in_cents').notNull(),
+});
+
 // ─── Schema type exports (used by repositories) ──────────────────────────────
 
 export type CategoryRow = typeof categories.$inferSelect;
@@ -181,3 +219,9 @@ export type NewPaymentRow = typeof payments.$inferInsert;
 
 export type StockAdjustmentRow = typeof stockAdjustments.$inferSelect;
 export type NewStockAdjustmentRow = typeof stockAdjustments.$inferInsert;
+
+export type ReturnRow = typeof returns.$inferSelect;
+export type NewReturnRow = typeof returns.$inferInsert;
+
+export type ReturnItemRow = typeof returnItems.$inferSelect;
+export type NewReturnItemRow = typeof returnItems.$inferInsert;

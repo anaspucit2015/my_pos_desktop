@@ -7,6 +7,7 @@ import {
   OrderRepository,
   CustomerRepository,
   UserRepository,
+  ReturnRepository,
 } from '@my-pos/database';
 
 import {
@@ -15,6 +16,7 @@ import {
   CustomerController,
   AuthController,
   InventoryController,
+  ReturnController,
   ReportService,
 } from '@my-pos/core';
 
@@ -42,11 +44,14 @@ import type {
   InventoryAdjustArgs,
   InventoryStockHistoryArgs,
   ReportDailySummaryArgs,
+  ReportRangeSummaryArgs,
   ReportTopProductsArgs,
   ReportRevenueByCategoryArgs,
   CategoryCreateArgs,
   CategoryUpdateArgs,
   CategoryDeleteArgs,
+  ReturnProcessArgs,
+  ReturnGetByOrderArgs,
 } from './types.js';
 
 /**
@@ -61,12 +66,14 @@ export function registerHandlers(db: Db): void {
   const orderRepo = new OrderRepository(db);
   const customerRepo = new CustomerRepository(db);
   const userRepo = new UserRepository(db);
+  const returnRepo = new ReturnRepository(db);
 
   const productController = new ProductController(productRepo);
   const orderController = new OrderController(orderRepo, productRepo);
   const customerController = new CustomerController(customerRepo);
   const authController = new AuthController(userRepo);
   const inventoryController = new InventoryController(productRepo);
+  const returnController = new ReturnController(returnRepo, orderRepo, productRepo);
   const reportService = new ReportService(orderRepo);
 
   // ── Helper: wraps an async handler so uncaught throws become IpcResponse errors ──
@@ -304,6 +311,12 @@ export function registerHandlers(db: Db): void {
       fromResult(await reportService.getDailySummary(new Date(date))),
   );
 
+  handle<ReportRangeSummaryArgs, unknown>(
+    IPC.REPORTS.GET_RANGE_SUMMARY,
+    async (_e, { from, to }) =>
+      fromResult(await reportService.getRangeSummary(new Date(from), new Date(to))),
+  );
+
   handle<ReportTopProductsArgs, unknown>(
     IPC.REPORTS.GET_TOP_PRODUCTS,
     async (_e, { from, to, limit }) =>
@@ -314,6 +327,18 @@ export function registerHandlers(db: Db): void {
     IPC.REPORTS.GET_REVENUE_BY_CATEGORY,
     async (_e, { from, to }) =>
       fromResult(await reportService.getRevenueByCategory(new Date(from), new Date(to))),
+  );
+
+  // ── Returns ─────────────────────────────────────────────────────────────────
+
+  handle<ReturnProcessArgs, unknown>(
+    IPC.RETURNS.PROCESS,
+    async (_e, { dto }) => fromResult(await returnController.processReturn(dto)),
+  );
+
+  handle<ReturnGetByOrderArgs, unknown>(
+    IPC.RETURNS.GET_BY_ORDER,
+    async (_e, { orderId }) => fromResult(await returnController.getByOrderId(orderId)),
   );
 }
 
@@ -330,6 +355,7 @@ export function unregisterHandlers(): void {
     ...Object.values(IPC.INVENTORY),
     ...Object.values(IPC.REPORTS),
     ...Object.values(IPC.CATEGORIES),
+    ...Object.values(IPC.RETURNS),
   ];
   for (const channel of allChannels) {
     ipcMain.removeHandler(channel);

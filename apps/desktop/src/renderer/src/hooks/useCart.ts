@@ -4,7 +4,7 @@ import type { CreateOrderDTO, PaymentDTO } from '@my-pos/shared';
 
 interface UseCartResult {
   /** Place a new order from the current cart contents. Returns orderId on success. */
-  checkout(payment: PaymentDTO): Promise<{ orderId: number } | { error: string }>;
+  checkout(payment: PaymentDTO, customerId?: number): Promise<{ orderId: number } | { error: string }>;
 }
 
 /**
@@ -17,12 +17,14 @@ export function useCart(): UseCartResult {
 
   const checkout = async (
     payment: PaymentDTO,
+    customerId?: number,
   ): Promise<{ orderId: number } | { error: string }> => {
     if (!currentUser) return { error: 'No authenticated user' };
     if (items.length === 0) return { error: 'Cart is empty' };
 
     const dto: CreateOrderDTO = {
       cashierId: currentUser.id,
+      customerId,
       discountInCents,
       items: items.map((item) => ({
         productId: item.product.id,
