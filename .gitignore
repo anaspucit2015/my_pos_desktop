@@ -4,7 +4,6 @@ dist/
 coverage/
 *.db
 *.db-journal
-.env
-.env.local
 out/
 release/
+config.bat
